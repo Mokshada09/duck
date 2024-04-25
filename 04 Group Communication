@@ -1,156 +1,148 @@
 code:
 Server.java
-//Server.java
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
-public class server
-{
-private static Vector<PrintWriter> writers = new Vector<PrintWriter>();
-public static void main(String[] args) throws Exception
-{
-try (ServerSocket listener = new ServerSocket(9001)) {
-System.out.println("The server is running at port 9001.");
-while (true)
-new Handler(listener.accept()).start();
+
+public class Server {
+    private static Vector<PrintWriter> writers = new Vector<PrintWriter>();
+
+    public static void main(String[] args) throws Exception {
+        try (ServerSocket listener = new ServerSocket(9001)) {
+            System.out.println("The server is running at port 9001.");
+            while (true)
+                new Handler(listener.accept()).start();
+        }
+    }
+
+    private static class Handler extends Thread {
+        private Socket socket;
+
+        /**
+         * @param socket
+         */
+        public Handler(Socket socket) {
+            this.socket = socket;
+        }
+
+        public void run() {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                out.println("SUBMITNAME");
+                String name = in.readLine();
+                System.out.println(name + " joined");
+                writers.add(out);
+                while (true) {
+                    String input = in.readLine();
+                    for (PrintWriter writer : writers)
+                        writer.println("MESSAGE" + name + ": " + input);
+                }
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+    }
 }
-}
-private static class Handler extends Thread
-{
-private Socket socket;
-/**
-* @param socket
-*/
-public Handler(Socket socket)
-{
-this.socket = socket;
-}
-public void run()
-{
-try
-{
-BufferedReader in = new BufferedReader(new
-InputStreamReader(socket.getInputStream()));
-PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-out.println("SUBMITNAME");
-String name = in.readLine();
-System.out.println(name+" joined");
-writers.add(out);
-while (true)
-{
-String input = in.readLine();
-for (PrintWriter writer : writers)writer.println("MESSAGE" +
-name + ": " + input);
-}
-}
-catch (Exception e) {System.err.println(e);}
-}
-}
-}
+
 
 Master.java
-//master.java
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
-public class master
-{
-public static void main(String[] args) throws Exception {
-try (Scanner sc = new Scanner(System.in)) {
-try (Socket socket = new Socket("localhost", 9001)) {
-BufferedReader in = new BufferedReader(new
-InputStreamReader(socket.getInputStream()));
-PrintWriter out = new PrintWriter(socket.getOutputStream(),
-true);
-System.out.print("Enter your name: ");
-String name = sc.nextLine();
-while (true) {
-String line = in.readLine();
-if (line.startsWith("SUBMITNAME")) out.println(name);
-else if (line.startsWith("MESSAGE"))
-System.out.println(line.substring(8));
-if(name.startsWith("master")){
-System.out.print("Enter a message: ");
-out.println(sc.nextLine());
-}
-}
-}
-}
-}
+
+public class Master {
+    public static void main(String[] args) throws Exception {
+        try (Scanner sc = new Scanner(System.in)) {
+            try (Socket socket = new Socket("localhost", 9001)) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                System.out.print("Enter your name: ");
+                String name = sc.nextLine();
+                while (true) {
+                    String line = in.readLine();
+                    if (line.startsWith("SUBMITNAME"))
+                        out.println(name);
+                    else if (line.startsWith("MESSAGE"))
+                        System.out.println(line.substring(8));
+                    if (name.startsWith("Master")) {
+                        System.out.print("Enter a message: ");
+                        out.println(sc.nextLine());
+                    }
+                }
+            }
+        }
+    }
 }
 
+
 Slave1.java
-//slave1.java
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
-public class slave1
-{
-public static void main(String[] args) throws Exception
-{
-try (Scanner sc = new Scanner(System.in)) {
-try (Socket socket = new Socket("localhost", 9001)) {
-BufferedReader in = new BufferedReader(new
-InputStreamReader(socket.getInputStream()));
-PrintWriter out = new PrintWriter(socket.getOutputStream(),
-true);
-System.out.print("Enter your name: ");
-String name = sc.nextLine();
-while (true) {
-String line = in.readLine();
-if (line.startsWith("SUBMITNAME"))
-out.println(name);
-else if (line.startsWith("MESSAGE"))
-System.out.println(line.substring(8));
-if(name.startsWith("master")){
-System.out.print("Enter a message: ");
-out.println(sc.nextLine());
-}
-}
-}
-}
-}
+
+public class Slave1 {
+    public static void main(String[] args) throws Exception {
+        try (Scanner sc = new Scanner(System.in)) {
+            try (Socket socket = new Socket("localhost", 9001)) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                System.out.print("Enter your name: ");
+                String name = sc.nextLine();
+                while (true) {
+                    String line = in.readLine();
+                    if (line.startsWith("SUBMITNAME"))
+                        out.println(name);
+                    else if (line.startsWith("MESSAGE"))
+                        System.out.println(line.substring(8));
+                    if (name.startsWith("master")) {
+                        System.out.print("Enter a message: ");
+                        out.println(sc.nextLine());
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 Slave2.java
-//slave2.java
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
-public class slave2
-{
-public static void main(String[] args) throws Exception
-{
-try (Scanner sc = new Scanner(System.in)) {
-try (Socket socket = new Socket("localhost", 9001)) {
-BufferedReader in = new BufferedReader(new
-InputStreamReader(socket.getInputStream()));
-PrintWriter out = new PrintWriter(socket.getOutputStream(),
-true);
-System.out.print("Enter your name: ");
-String name = sc.nextLine();
-while (true) {
-String line = in.readLine();
-if (line.startsWith("SUBMITNAME"))
-out.println(name);
-else if (line.startsWith("MESSAGE"))
-System.out.println(line.substring(8));
-if(name.startsWith("master")){
-System.out.print("Enter a message: ");
-out.println(sc.nextLine());
-}
-}
-}
-}
-}
+
+public class Slave2 {
+    public static void main(String[] args) throws Exception {
+        try (Scanner sc = new Scanner(System.in)) {
+            try (Socket socket = new Socket("localhost", 9001)) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                System.out.print("Enter your name: ");
+                String name = sc.nextLine();
+                while (true) {
+                    String line = in.readLine();
+                    if (line.startsWith("SUBMITNAME"))
+                        out.println(name);
+                    else if (line.startsWith("MESSAGE"))
+                        System.out.println(line.substring(8));
+                    if (name.startsWith("master")) {
+                        System.out.print("Enter a message: ");
+                        out.println(sc.nextLine());
+                    }
+                }
+            }
+        }
+    }
 }
