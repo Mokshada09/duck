@@ -1,0 +1,65 @@
+code:
+IPCServer.java (give this name to the server file)
+
+import java.net.*;
+import java.io.*;
+public class IPCServer {
+public static void main(String[] args) {
+System.out.println("INTERPROCESS COMMUNICATION SERVER PROCESS STARTED");
+System.out.println("SERVER IS READY AND WAITING TO RECEIVE DATA FROM CLIENT
+PROCESS ON PORT 1200");
+try {
+ServerSocket ss = new ServerSocket(1200); // 1200 is the port number
+Socket clientSocket = ss.accept();
+System.out.println("\nClient is connected with IP address " +
+clientSocket.getInetAddress() + " and port Number " + clientSocket.getPort());
+DataOutputStream dos = new
+DataOutputStream(clientSocket.getOutputStream());
+DataInputStream dis = new
+DataInputStream(clientSocket.getInputStream());
+int a = dis.readInt();
+System.out.println("\nNumber 1 ---- " + a);
+int b = dis.readInt();
+System.out.println("\nNumber 2 ---- " + b);
+int c = a + b;
+dos.writeInt(c);
+System.out.println("\nSERVER PROCESS HAS EXECUTED REQUESTED PROCESS AND SENT
+RESULT " + c + " TO THE CLIENT");
+clientSocket.close();
+System.out.println("SERVER PROCESS EXITING.........");
+ss.close();
+} catch (Exception e) {e.printStackTrace();
+}
+}
+}
+
+IPCClient.java (give this name to the client file)
+
+import java.net.*;
+import java.io.*;
+public class IPCClient {
+public static void main(String args[]) {
+try {
+Socket s = new Socket("localhost", 1200);
+DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+DataInputStream dis = new DataInputStream(s.getInputStream());
+InputStreamReader isr = new InputStreamReader(System.in);
+System.out.println("\nCLIENT PROCESS STARTED");
+System.out.println("PLEASE ENTER THE VALUES OF Number 1 AND Number 2 TO PASS
+THEM TO SERVER PROCESS");
+BufferedReader br = new BufferedReader(isr);
+System.out.print("Number 1: ");
+int a = Integer.parseInt(br.readLine());
+dos.writeInt(a);
+System.out.print("Number 2: ");
+int b = Integer.parseInt(br.readLine());
+dos.writeInt(b);
+int result = dis.readInt();
+System.out.println("\nCLIENT PROCESS HAS RECEIVED RESULT FROM SERVER");
+System.out.println("\nTHE ADDITION OF " + a + " AND " + b + " IS " + result);
+s.close();
+} catch (Exception e) {
+System.out.println("Exception is " + e);
+}
+}
+}
